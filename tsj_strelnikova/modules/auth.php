@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход | ТСЖ Стрельникова</title>
     <?php
-    global $base_url;
     if (!isset($base_url)) {
-        $base_url = dirname($_SERVER['SCRIPT_NAME']) === '/' ? '' : dirname($_SERVER['SCRIPT_NAME']);
+        $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+        $base_url = ($scriptDir === '/' || $scriptDir === '\\') ? '' : rtrim($scriptDir, '/\\');
     }
     ?>
     <link rel="stylesheet" href="<?= $base_url ?>/assets/css/style.css">

@@ -1,8 +1,7 @@
 <?php 
-// Получаем базовый URL из родительской области видимости
-global $base_url;
 if (!isset($base_url)) {
-    $base_url = dirname($_SERVER['SCRIPT_NAME']) === '/' ? '' : dirname($_SERVER['SCRIPT_NAME']);
+    $scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+    $base_url = ($scriptDir === '/' || $scriptDir === '\\') ? '' : rtrim($scriptDir, '/\\');
 }
 if ($_SESSION['role'] !== 'tenant') { redirect('?page=dashboard'); } ?>
 <!DOCTYPE html>

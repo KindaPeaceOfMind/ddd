@@ -4,11 +4,13 @@ require_once __DIR__ . '/core/db.php';
 require_once __DIR__ . '/core/config.php';
 require_once __DIR__ . '/core/functions.php';
 
-// Определяем базовый URL проекта
-$base_url = dirname($_SERVER['SCRIPT_NAME']) === '/' ? '' : dirname($_SERVER['SCRIPT_NAME']);
-
-// Делаем $base_url доступной внутри подключаемых файлов через глобальную переменную
-$GLOBALS['base_url'] = $base_url;
+// Определяем базовый URL проекта единообразно
+$scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+if ($scriptDir === '/' || $scriptDir === '\\') {
+    $base_url = '';
+} else {
+    $base_url = rtrim($scriptDir, '/\\');
+}
 
 // Определяем запрашиваемую страницу
 $page = $_GET['page'] ?? 'dashboard';
