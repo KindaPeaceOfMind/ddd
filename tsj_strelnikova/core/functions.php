@@ -4,7 +4,7 @@ function isLoggedIn() {
 }
 
 function redirect($url) {
-    header("Location: $url");
+    header("Location: " . $url);
     exit;
 }
 
@@ -36,5 +36,13 @@ function getStatusBadge($status) {
         'cancelled' => '<span class="status-badge status-cancelled">Отменена</span>'
     ];
     return $badges[$status] ?? $status;
+}
+
+function asset($path) {
+    return '/tsj_strelnikova/' . ltrim($path, '/');
+}
+
+function api($endpoint) {
+    return '/tsj_strelnikova/api/' . ltrim($endpoint, '/');
 }
 ?>

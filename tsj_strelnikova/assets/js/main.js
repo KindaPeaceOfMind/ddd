@@ -15,7 +15,10 @@ function initTheme() {
 async function loadStats() {
     const canvas = document.getElementById('statsChart');
     if (!canvas) return;
-    const res = await fetch('/api/get_stats.php');
+    // Автоматическое определение базового пути
+    const path = window.location.pathname;
+    const baseUrl = path.substring(0, path.lastIndexOf('/'));
+    const res = await fetch(baseUrl + '/api/get_stats.php');
     const data = await res.json();
     if (window.statsChart) window.statsChart.destroy();
     window.statsChart = new Chart(canvas, {
@@ -25,8 +28,20 @@ async function loadStats() {
             datasets: [{
                 label: 'Количество заявок',
                 data: [data.new, data.assigned, data.completed, data.closed],
-                backgroundColor: '#2a5298'
+                backgroundColor: ['#f39c12', '#3498db', '#2ecc71', '#95a5a6']
             }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
         }
     });
 }

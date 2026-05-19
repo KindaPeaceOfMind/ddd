@@ -1,8 +1,11 @@
 <?php
 session_start();
-require_once 'core/db.php';
-require_once 'core/config.php';
-require_once 'core/functions.php';
+require_once __DIR__ . '/core/db.php';
+require_once __DIR__ . '/core/config.php';
+require_once __DIR__ . '/core/functions.php';
+
+// Определяем базовый URL проекта
+$base_url = dirname($_SERVER['SCRIPT_NAME']) === '/' ? '' : dirname($_SERVER['SCRIPT_NAME']);
 
 // Определяем запрашиваемую страницу
 $page = $_GET['page'] ?? 'dashboard';
@@ -16,14 +19,15 @@ if (!isLoggedIn() && $page !== 'auth') {
 // Обработка выхода
 if ($page === 'logout') {
     session_destroy();
-    redirect('index.php?page=auth');
+    header('Location: ' . $base_url . '/index.php?page=auth');
+    exit;
 }
 
 // Подключение модуля
-$module_path = "modules/$page.php";
+$module_path = __DIR__ . "/modules/$page.php";
 if (file_exists($module_path)) {
     include $module_path;
 } else {
-    include 'modules/dashboard.php';
+    include __DIR__ . '/modules/dashboard.php';
 }
 ?>

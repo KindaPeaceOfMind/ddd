@@ -1,15 +1,20 @@
-<?php if ($_SESSION['role'] !== 'admin') { redirect('?page=dashboard'); } ?>
+<?php 
+global $base_url;
+if (!isset($base_url)) {
+    $base_url = dirname($_SERVER['SCRIPT_NAME']) === '/' ? '' : dirname($_SERVER['SCRIPT_NAME']);
+}
+if ($_SESSION['role'] !== 'admin') { redirect('?page=dashboard'); } ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Администратор | ТСЖ Стрельникова</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="<?= $base_url ?>/assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="/assets/js/main.js" defer></script>
+    <script src="<?= $base_url ?>/assets/js/main.js" defer></script>
 </head>
 <body>
 <div class="container">
@@ -62,15 +67,16 @@
     </div>
 </div>
 <script>
+    const baseUrl = '<?= $base_url ?>';
     let currentLogPage = 1, currentNewsPage = 1, tempBannerPhoto = '';
     
     async function loadUsers() {
-        const u = await fetch('/api/get_users.php').then(r=>r.json());
+        const u = await fetch(baseUrl + '/api/get_users.php').then(r=>r.json());
         document.getElementById('usersList').innerHTML = `<pre>${JSON.stringify(u,null,2)}</pre>`;
     }
     
     async function loadStats() {
-        const s = await fetch('/api/get_stats.php').then(r=>r.json());
+        const s = await fetch(baseUrl + '/api/get_stats.php').then(r=>r.json());
         document.getElementById('adminStats').innerHTML = `<p>Всего заявок: ${s.total}<br>Закрыто: ${s.closed} (${s.total?((s.closed/s.total)*100).toFixed(1):0}%)<br>Средний рейтинг рабочих: ${s.avgRating}</p>`;
         const ctx = document.getElementById('adminChart').getContext('2d');
         if (window.adminChart) window.adminChart.destroy();
@@ -89,7 +95,7 @@
     async function loadLogs() {
         const search = document.getElementById('logSearch').value;
         const role = document.getElementById('logRoleFilter').value;
-        const res = await fetch(`/api/get_logs.php?page=${currentLogPage}&search=${encodeURIComponent(search)}&role=${role}`);
+        const res = await fetch(`${baseUrl}/api/get_logs.php?page=${currentLogPage}&search=${encodeURIComponent(search)}&role=${role}`);
         const data = await res.json();
         
         let html = '<div class="table-wrapper"><table><thead><tr><th>Дата</th><th>Пользователь</th><th>Роль</th><th>Действие</th><th>Детали</th></tr></thead><tbody>';
@@ -112,7 +118,7 @@
     }
     
     async function loadNews() {
-        const res = await fetch(`/api/get_news.php?page=${currentNewsPage}&admin=true`);
+        const res = await fetch(`${baseUrl}/api/get_news.php?page=${currentNewsPage}&admin=true`);
         const data = await res.json();
         
         let html = '';
@@ -136,7 +142,7 @@
     }
     
     window.updateNews = async (id) => {
-        await fetch('/api/edit_news.php', {
+        await fetch(baseUrl + '/api/edit_news.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -150,7 +156,7 @@
     
     window.deleteNews = async (id) => {
         if(confirm('Удалить новость?')) {
-            await fetch('/api/delete_news.php', {
+            await fetch(baseUrl + '/api/delete_news.php', {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({id: id})
@@ -159,7 +165,7 @@
         }
     };
     
-    document.getElementById('exportLogsBtn').onclick = () => location.href = '/api/export_logs.php';
+    document.getElementById('exportLogsBtn').onclick = () => location.href = baseUrl + '/api/export_logs.php';
     document.getElementById('exportStatsPDF').onclick = () => {
         const element = document.getElementById('adminStats');
         html2pdf().set({filename: 'statistika.pdf'}).from(element).save();
@@ -170,7 +176,7 @@
         const title = document.getElementById('newTitle').value;
         const content = document.getElementById('newContent').value;
         if(!title||!content) return alert('Заполните поля');
-        await fetch('/api/add_news.php', {
+        await fetch(baseUrl + '/api/add_news.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({title, content})
@@ -189,7 +195,7 @@
     };
     
     document.getElementById('activateBanner').onclick = async() => {
-        await fetch('/api/update_banner.php', {
+        await fetch(baseUrl + '/api/update_banner.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -203,7 +209,7 @@
     };
     
     document.getElementById('deactivateBanner').onclick = async() => {
-        await fetch('/api/update_banner.php', {
+        await fetch(baseUrl + '/api/update_banner.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({active: 0})

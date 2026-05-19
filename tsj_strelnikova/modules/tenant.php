@@ -1,13 +1,19 @@
-<?php if ($_SESSION['role'] !== 'tenant') { redirect('?page=dashboard'); } ?>
+<?php 
+// Получаем базовый URL из родительской области видимости
+global $base_url;
+if (!isset($base_url)) {
+    $base_url = dirname($_SERVER['SCRIPT_NAME']) === '/' ? '' : dirname($_SERVER['SCRIPT_NAME']);
+}
+if ($_SESSION['role'] !== 'tenant') { redirect('?page=dashboard'); } ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Жилец | ТСЖ Стрельникова</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="<?= $base_url ?>/assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="/assets/js/main.js" defer></script>
+    <script src="<?= $base_url ?>/assets/js/main.js" defer></script>
 </head>
 <body>
 <div class="container">
@@ -36,7 +42,7 @@
 <script>
     let currentPage = 1, newsPage = 1;
     async function loadRequests() {
-        const res = await fetch(`/api/get_my_requests.php?page=${currentPage}`);
+        const res = await fetch(`<?= $base_url ?>/api/get_my_requests.php?page=${currentPage}`);
         const data = await res.json();
         let html = '<div class="table-wrapper"><table><thead><tr><th>№</th><th>Категория</th><th>Описание</th><th>Статус</th><th>Рейтинг</th><th>Действия</th></tr></thead><tbody>';
         data.requests.forEach(r => {
@@ -74,7 +80,7 @@
             stars.forEach(star => {
                 star.onclick = async () => {
                     const val = parseInt(star.dataset.val);
-                    await fetch('/api/rate_request.php', {
+                    await fetch('<?= $base_url ?>/api/rate_request.php', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({request_id: id, rating: val})
@@ -86,7 +92,7 @@
     }
     
     async function loadNews() {
-        const res = await fetch(`/api/get_news.php?page=${newsPage}`);
+        const res = await fetch(`<?= $base_url ?>/api/get_news.php?page=${newsPage}`);
         const data = await res.json();
         document.getElementById('newsBlock').innerHTML = data.news.map(n=>`<div style="border-bottom:1px solid #ddd;padding:15px 0;"><strong>${n.title}</strong><br><small>${new Date(n.published_at).toLocaleDateString()}</small><p>${n.content}</p></div>`).join('');
         let pag = '';
@@ -96,7 +102,7 @@
     }
     
     async function loadInvoices() {
-        const inv = await fetch('/api/get_invoices.php').then(r=>r.json());
+        const inv = await fetch('<?= $base_url ?>/api/get_invoices.php').then(r=>r.json());
         document.getElementById('invoicesList').innerHTML = inv.map(i=>`<div style="border:1px solid #ddd;border-radius:16px;padding:15px;margin:10px 0;"><div><strong>${i.month}</strong><br>Сумма: ${i.amount} руб.<br>Статус: ${i.paid?'✅ Оплачено':'⏳ Ожидает'}</div><button class="btn-small" onclick="alert('Скачивание PDF (демо)')">📄 PDF</button></div>`).join('');
     }
     
@@ -122,7 +128,7 @@
         const files = document.getElementById('photos').files;
         let photos = [];
         for(let f of files) photos.push(await fileToBase64(f));
-        await fetch('/api/add_request.php',{
+        await fetch('<?= $base_url ?>/api/add_request.php',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({

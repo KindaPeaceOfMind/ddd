@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход | ТСЖ Стрельникова</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <script src="/assets/js/main.js" defer></script>
+    <?php
+    global $base_url;
+    if (!isset($base_url)) {
+        $base_url = dirname($_SERVER['SCRIPT_NAME']) === '/' ? '' : dirname($_SERVER['SCRIPT_NAME']);
+    }
+    ?>
+    <link rel="stylesheet" href="<?= $base_url ?>/assets/css/style.css">
+    <script src="<?= $base_url ?>/assets/js/main.js" defer></script>
 </head>
 <body>
 <div class="container">
@@ -45,18 +51,19 @@
     </div>
 </div>
 <script>
+    const baseUrl = '<?= $base_url ?>';
     async function login(email, password) {
-        const res = await fetch('/api/login.php', {
+        const res = await fetch(baseUrl + '/api/login.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({email, password})
         });
         const data = await res.json();
-        if (data.success) { location.href = '/'; }
+        if (data.success) { location.href = baseUrl + '/'; }
         else alert(data.error);
     }
     async function register(full_name, email, apartment, role, password) {
-        const res = await fetch('/api/register.php', {
+        const res = await fetch(baseUrl + '/api/register.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({full_name, email, apartment, role, password})
@@ -66,11 +73,11 @@
         else alert(data.error);
     }
     function setDemoRole(role) {
-        fetch('/api/demo_login.php', {
+        fetch(baseUrl + '/api/demo_login.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({role})
-        }).then(() => location.href = '/');
+        }).then(() => location.href = baseUrl + '/');
     }
     document.getElementById('doLoginBtn').onclick = () => login(loginEmail.value, loginPassword.value);
     document.getElementById('doRegisterBtn').onclick = () => register(regFullname.value, regEmail.value, regApartment.value, regRole.value, regPassword.value);

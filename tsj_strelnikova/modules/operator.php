@@ -1,13 +1,18 @@
-<?php if ($_SESSION['role'] !== 'operator') { redirect('?page=dashboard'); } ?>
+<?php 
+global $base_url;
+if (!isset($base_url)) {
+    $base_url = dirname($_SERVER['SCRIPT_NAME']) === '/' ? '' : dirname($_SERVER['SCRIPT_NAME']);
+}
+if ($_SESSION['role'] !== 'operator') { redirect('?page=dashboard'); } ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Оператор | ТСЖ Стрельникова</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="<?= $base_url ?>/assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="/assets/js/main.js" defer></script>
+    <script src="<?= $base_url ?>/assets/js/main.js" defer></script>
 </head>
 <body>
 <div class="container">
@@ -26,15 +31,16 @@
     <div class="card full-width"><h3>📋 Все заявки</h3><div class="filter-bar"><input id="search" placeholder="Поиск"><select id="statusFilter"><option value="">Все статусы</option><option value="new">Новые</option><option value="assigned">Назначенные</option><option value="completed">Выполненные</option></select><button id="filterBtn">🔍 Применить</button></div><div id="operatorTable"></div><div class="pagination" id="pagination"></div></div>
 </div>
 <script>
+    const baseUrl = '<?= $base_url ?>';
     let currentPage = 1, filters = {status:'',search:''};
     
     async function loadWorkers() {
-        const w = await fetch('/api/get_workers.php').then(r=>r.json());
+        const w = await fetch(baseUrl + '/api/get_workers.php').then(r=>r.json());
         document.getElementById('workerSelect').innerHTML = w.map(w=>`<option value="${w.id}">${w.full_name} ⭐${(w.rating||0).toFixed(1)}</option>`).join('');
     }
     
     async function loadRequests() {
-        const res = await fetch(`/api/get_requests.php?page=${currentPage}&status=${filters.status}&search=${filters.search}`);
+        const res = await fetch(`${baseUrl}/api/get_requests.php?page=${currentPage}&status=${filters.status}&search=${filters.search}`);
         const data = await res.json();
         document.getElementById('reqSelect').innerHTML = '<option>Выбрать заявку</option>' + data.requests.filter(r=>r.status==='new').map(r=>`<option value="${r.id}">#${r.id} - ${r.description.substring(0,40)}</option>`).join('');
         
@@ -58,7 +64,7 @@
         
         document.querySelectorAll('.page-btn').forEach(b=>b.onclick=()=>{currentPage=parseInt(b.dataset.page);loadRequests();});
         document.querySelectorAll('.closeReq').forEach(b=>b.onclick=async()=>{
-            await fetch('/api/close_request.php',{
+            await fetch(baseUrl + '/api/close_request.php',{
                 method:'POST',
                 headers:{'Content-Type':'application/json'},
                 body:JSON.stringify({id:b.dataset.id})
@@ -68,7 +74,7 @@
     }
     
     document.getElementById('assignBtn').onclick = async()=>{
-        await fetch('/api/assign_worker.php',{
+        await fetch(baseUrl + '/api/assign_worker.php',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({
@@ -80,7 +86,7 @@
     };
     
     document.getElementById('reportBtn').onclick = async()=>{
-        const r = await fetch('/api/get_workers_report.php').then(r=>r.json());
+        const r = await fetch(baseUrl + '/api/get_workers_report.php').then(r=>r.json());
         document.getElementById('reportArea').innerText = r.text;
     };
     

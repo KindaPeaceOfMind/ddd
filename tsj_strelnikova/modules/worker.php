@@ -1,13 +1,18 @@
-<?php if ($_SESSION['role'] !== 'worker') { redirect('?page=dashboard'); } ?>
+<?php 
+global $base_url;
+if (!isset($base_url)) {
+    $base_url = dirname($_SERVER['SCRIPT_NAME']) === '/' ? '' : dirname($_SERVER['SCRIPT_NAME']);
+}
+if ($_SESSION['role'] !== 'worker') { redirect('?page=dashboard'); } ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Рабочий | ТСЖ Стрельникова</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="<?= $base_url ?>/assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="/assets/js/main.js" defer></script>
+    <script src="<?= $base_url ?>/assets/js/main.js" defer></script>
 </head>
 <body>
 <div class="container">
@@ -33,10 +38,11 @@
     <div class="card full-width"><h3>🔧 Мои задания</h3><div id="tasksList"></div><div class="pagination" id="pagination"></div></div>
 </div>
 <script>
+    const baseUrl = '<?= $base_url ?>';
     let currentPage = 1, tempPhotos = [];
     
     async function loadTasks() {
-        const res = await fetch(`/api/get_my_tasks.php?page=${currentPage}`);
+        const res = await fetch(`${baseUrl}/api/get_my_tasks.php?page=${currentPage}`);
         const data = await res.json();
         document.getElementById('taskSelect').innerHTML = '<option>Выбрать заявку</option>' + data.tasks.map(t=>`<option value="${t.id}">#${t.id} - ${t.description.substring(0,40)}</option>`).join('');
         
@@ -73,7 +79,7 @@
         const taskId = document.getElementById('taskSelect').value;
         const comment = document.getElementById('reportComment').value;
         if(!taskId || !comment) return alert('Заполните комментарий');
-        await fetch('/api/complete_request.php',{
+        await fetch(baseUrl + '/api/complete_request.php',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({

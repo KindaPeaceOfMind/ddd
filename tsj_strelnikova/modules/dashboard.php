@@ -1,13 +1,18 @@
-<?php if (!isLoggedIn()) { redirect('?page=auth'); } ?>
+<?php 
+global $base_url;
+if (!isset($base_url)) {
+    $base_url = dirname($_SERVER['SCRIPT_NAME']) === '/' ? '' : dirname($_SERVER['SCRIPT_NAME']);
+}
+if (!isLoggedIn()) { redirect('?page=auth'); } ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дашборд | ТСЖ Стрельникова</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="<?= $base_url ?>/assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="/assets/js/main.js" defer></script>
+    <script src="<?= $base_url ?>/assets/js/main.js" defer></script>
 </head>
 <body>
 <div class="container">
@@ -32,11 +37,11 @@
 </div>
 <script>
     async function loadDashboard() {
-        const stats = await fetch('/api/get_stats.php').then(r=>r.json());
+        const stats = await fetch('<?= $base_url ?>/api/get_stats.php').then(r=>r.json());
         document.getElementById('simpleStats').innerHTML = `<div>Всего: ${stats.total}</div><div>Выполнено: ${stats.completed}</div><div>Закрыто: ${stats.closed}</div><div>В работе: ${stats.assigned}</div>`;
-        const news = await fetch('/api/get_news.php').then(r=>r.json());
+        const news = await fetch('<?= $base_url ?>/api/get_news.php').then(r=>r.json());
         document.getElementById('lastNews').innerHTML = news.slice(0,3).map(n=>`<div><strong>${n.title}</strong><br><small>${new Date(n.published_at).toLocaleDateString()}</small></div>`).join('');
-        const workers = await fetch('/api/get_workers.php').then(r=>r.json());
+        const workers = await fetch('<?= $base_url ?>/api/get_workers.php').then(r=>r.json());
         document.getElementById('workersRating').innerHTML = workers.map(w=>`<div>${w.full_name}: ⭐ ${(w.rating||0).toFixed(1)} (${w.rating_count||0} оценок)</div>`).join('');
     }
     loadDashboard();
