@@ -17,7 +17,10 @@ if (!isLoggedIn()) { redirect('?page=auth'); } ?>
 <body>
 <div class="container">
     <div class="header">
-        <div class="logo"><h1>🏘️ ТСЖ «Стрельникова»</h1><p>г. Хабаровск, ул. Стрельникова, 6а</p></div>
+        <a href="<?= $base_url ?>/" class="logo" style="text-decoration:none;color:inherit;">
+            <h1>🏘️ ТСЖ «Стрельникова»</h1>
+            <p>г. Хабаровск, ул. Стрельникова, 6а</p>
+        </a>
         <div class="user-info">
             <span><?= htmlspecialchars($_SESSION['user_name']) ?> (<?= $_SESSION['role'] === 'tenant' ? 'Жилец' : ($_SESSION['role'] === 'operator' ? 'Оператор' : ($_SESSION['role'] === 'worker' ? 'Рабочий' : 'Админ')) ?>)</span>
             <a href="?page=logout" class="btn-small" style="background:#fff;color:#1e3c72;">Выйти</a>
