@@ -72,11 +72,6 @@ try {
     error_log("Ошибка создания заявки: " . $e->getMessage());
     
     // Отправляем понятное сообщение клиенту
-    $msg = $e->getMessage();
-    if (strpos($msg, 'SQL') !== false || strpos($msg, 'PDO') !== false) {
-        $msg = 'Ошибка базы данных. Попробуйте позже.';
-    }
-    
-    jsonResponse(false, $msg, [], 400);
+    jsonResponse(false, $e->getMessage(), [], 400);
 }
 ?>

@@ -1,12 +1,1 @@
-(tsj_strelnikova/.env
-tsj_strelnikova/.env.local
-tsj_strelnikova/.env.*
-tsj_strelnikova/node_modules/
-tsj_strelnikova/vendor/
-tsj_strelnikova/composer.lock
-tsj_strelnikova/*.log
-tsj_strelnikova/logs/
-tsj_strelnikova/cache/
-tsj_strelnikova/tmp/
-tsj_strelnikova/.DS_Store
-tsj_strelnikova/Thumbs.db)
+Nothing needs to be added to the .gitignore file based on the provided file changes, as only a PHP source file was modified and no build artifacts, dependencies, or temporary files were included in the changes.
