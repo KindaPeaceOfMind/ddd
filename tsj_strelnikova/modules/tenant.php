@@ -59,7 +59,7 @@ if ($_SESSION['role'] !== 'tenant') { redirect('?page=dashboard'); } ?>
                 <td>${r.description.substring(0,50)}${r.description.length>50?'...':''}</td>
                 <td>${getStatusBadge(r.status)}</td>
                 <td>${ratingHtml}</td>
-                <td><button class="btn-small view-btn" data-id="${r.id}">👁️ Детали</button></td>
+                <td><a href="<?= $base_url ?>/?page=tenant&view=${r.id}" class="btn-small view-btn">👁️ Детали</a></td>
             </tr>`;
         });
         html += '</tbody></table></div>';
@@ -70,7 +70,6 @@ if ($_SESSION['role'] !== 'tenant') { redirect('?page=dashboard'); } ?>
         document.getElementById('pagination').innerHTML = `<div class="pagination">${pag}</div>`;
         
         document.querySelectorAll('.page-btn').forEach(b=>b.onclick=()=>{currentPage=parseInt(b.dataset.page);loadRequests();});
-        document.querySelectorAll('.view-btn').forEach(b=>b.onclick=()=>alert('Детали заявки (расширенная информация)'));
         
         // Обработка оценки
         document.querySelectorAll('.rating-stars').forEach(el => {
@@ -93,7 +92,14 @@ if ($_SESSION['role'] !== 'tenant') { redirect('?page=dashboard'); } ?>
     async function loadNews() {
         const res = await fetch(`<?= $base_url ?>/api/get_news.php?page=${newsPage}`);
         const data = await res.json();
-        document.getElementById('newsBlock').innerHTML = data.news.map(n=>`<div style="border-bottom:1px solid #ddd;padding:15px 0;"><strong>${n.title}</strong><br><small>${new Date(n.published_at).toLocaleDateString()}</small><p>${n.content}</p></div>`).join('');
+        document.getElementById('newsBlock').innerHTML = data.news.map(n=>`
+            <div style="border-bottom:1px solid #ddd;padding:15px 0;">
+                <strong>${n.title}</strong><br>
+                <small>${new Date(n.published_at).toLocaleDateString()}</small>
+                <p>${n.content.substring(0,150)}${n.content.length>150?'...':''}</p>
+                <a href="<?= $base_url ?>/?page=tenant&news=${n.id}" class="btn-small" style="margin-top:8px;">📖 Читать далее →</a>
+            </div>
+        `).join('');
         let pag = '';
         for(let i=1;i<=data.totalPages;i++) pag += `<button class="news-page-btn ${i===newsPage?'btn-success':''}" data-page="${i}">${i}</button>`;
         document.getElementById('newsPagination').innerHTML = `<div class="pagination">${pag}</div>`;
@@ -121,24 +127,49 @@ if ($_SESSION['role'] !== 'tenant') { redirect('?page=dashboard'); } ?>
     };
     
     document.getElementById('submitBtn').onclick = async () => {
+        const btn = document.getElementById('submitBtn');
         const cat = document.getElementById('catId').value;
         const desc = document.getElementById('desc').value;
-        if(!cat||!desc) return alert('Заполните поля');
-        const files = document.getElementById('photos').files;
-        let photos = [];
-        for(let f of files) photos.push(await fileToBase64(f));
-        await fetch('<?= $base_url ?>/api/add_request.php',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({
-                category_id:cat,
-                description:desc,
-                priority:document.getElementById('priority').value,
-                photos:JSON.stringify(photos)
-            })
-        });
-        alert('Заявка подана');
-        location.reload();
+        
+        if(!cat) return alert('⚠️ Выберите категорию заявки');
+        if(!desc || desc.trim().length < 5) return alert('⚠️ Опишите проблему подробнее (минимум 5 символов)');
+        
+        // Блокируем кнопку на время отправки
+        btn.disabled = true;
+        btn.textContent = '⏳ Отправка...';
+        
+        try {
+            const files = document.getElementById('photos').files;
+            let photos = [];
+            for(let f of files) photos.push(await fileToBase64(f));
+            
+            const response = await fetch('<?= $base_url ?>/api/add_request.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    category_id: cat,
+                    description: desc,
+                    priority: document.getElementById('priority').value,
+                    photos: JSON.stringify(photos)
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
+                alert('✅ ' + result.message);
+                location.reload();
+            } else {
+                alert('❌ Ошибка: ' + (result.message || 'Не удалось создать заявку'));
+                btn.disabled = false;
+                btn.textContent = '✅ Подать';
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('❌ Ошибка соединения с сервером. Проверьте подключение к интернету.');
+            btn.disabled = false;
+            btn.textContent = '✅ Подать';
+        }
     };
     
     function fileToBase64(file) {
