@@ -14,7 +14,7 @@ if ($_SESSION['role'] !== 'admin') { redirect('?page=dashboard'); } ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="<?= $base_url ?>/assets/js/main.js" defer></script>
+    <script src="<?= $base_url ?>/assets/js/main.js" data-base-url="<?= $base_url ?>" defer></script>
 </head>
 <body>
 <div class="container">

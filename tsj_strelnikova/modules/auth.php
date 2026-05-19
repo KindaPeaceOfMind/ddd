@@ -11,7 +11,7 @@
     }
     ?>
     <link rel="stylesheet" href="<?= $base_url ?>/assets/css/style.css">
-    <script src="<?= $base_url ?>/assets/js/main.js" defer></script>
+    <script src="<?= $base_url ?>/assets/js/main.js" data-base-url="<?= $base_url ?>" defer></script>
 </head>
 <body>
 <div class="container">

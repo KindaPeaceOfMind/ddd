@@ -12,12 +12,28 @@ function initTheme() {
     }
 }
 
+function getBaseUrl() {
+    // Пробуем получить базовый URL из data-атрибута скрипта
+    const scriptEl = document.querySelector('script[src*="main.js"]');
+    if (scriptEl) {
+        const dataBaseUrl = scriptEl.getAttribute('data-base-url');
+        if (dataBaseUrl !== null) {
+            return dataBaseUrl;
+        }
+        // Если data-атрибута нет, извлекаем путь из src
+        const url = new URL(scriptEl.src);
+        return url.pathname.substring(0, url.pathname.lastIndexOf('/'));
+    }
+    // Фоллбэк: используем текущий путь
+    const path = window.location.pathname;
+    return path.substring(0, path.lastIndexOf('/'));
+}
+
 async function loadStats() {
     const canvas = document.getElementById('statsChart');
     if (!canvas) return;
-    // Автоматическое определение базового пути
-    const path = window.location.pathname;
-    const baseUrl = path.substring(0, path.lastIndexOf('/'));
+    
+    const baseUrl = getBaseUrl();
     const res = await fetch(baseUrl + '/api/get_stats.php');
     const data = await res.json();
     if (window.statsChart) window.statsChart.destroy();

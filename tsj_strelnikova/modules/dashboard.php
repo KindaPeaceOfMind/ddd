@@ -12,7 +12,7 @@ if (!isLoggedIn()) { redirect('?page=auth'); } ?>
     <title>Дашборд | ТСЖ Стрельникова</title>
     <link rel="stylesheet" href="<?= $base_url ?>/assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="<?= $base_url ?>/assets/js/main.js" defer></script>
+    <script src="<?= $base_url ?>/assets/js/main.js" data-base-url="<?= $base_url ?>" defer></script>
 </head>
 <body>
 <div class="container">
